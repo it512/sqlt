@@ -1,2 +1,2 @@
 # sqlt
-like mybatis 
+like mybatis see README-zh.me
