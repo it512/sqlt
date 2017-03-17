@@ -5,12 +5,12 @@ import "github.com/jmoiron/sqlx"
 type (
 	DbOp struct {
 		db *sqlx.DB
-		l  SqlLoader
+		l  SqlRenderer
 	}
 
 	TxOp struct {
 		tx *sqlx.Tx
-		l  SqlLoader
+		l  SqlRenderer
 	}
 
 	defRowHandler struct {
