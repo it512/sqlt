@@ -18,7 +18,7 @@ go代码
 模板
 
 		{{define "defget"}}
-			select * from {{.a}} where 1=1
+			select * from {{.a}} where 
 			{{if and .w .s}}
 				and {{.w}} like '%{{.s}}%'
 			{{end}}
