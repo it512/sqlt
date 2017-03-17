@@ -6,8 +6,8 @@ var (
 	nilParam = make(map[string]interface{})
 )
 
-func insertDeleteUpdate(l SqlLoader, ext sqlx.Ext, id string, param interface{}) (int64, error) {
-	sql, _, e := l.LoadSql(id, param)
+func insertDeleteUpdate(l SqlRenderer, ext sqlx.Ext, id string, param interface{}) (int64, error) {
+	sql, _, e := l.RenderSql(id, param)
 	oops(e)
 
 	var p = param
@@ -21,8 +21,8 @@ func insertDeleteUpdate(l SqlLoader, ext sqlx.Ext, id string, param interface{})
 	return result.RowsAffected()
 }
 
-func selectWithRowHandler(l SqlLoader, ext sqlx.Ext, id string, param interface{}, rh RowHandler) error {
-	sql, _, e := l.LoadSql(id, param)
+func selectWithRowHandler(l SqlRenderer, ext sqlx.Ext, id string, param interface{}, rh RowHandler) error {
+	sql, _, e := l.RenderSql(id, param)
 	oops(e)
 
 	var p = param

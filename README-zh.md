@@ -7,7 +7,7 @@ sqlt是一个模仿mybatis的go sqlmapping 实现，本质上，sqlt是数据库
 go代码  
 
 	db := sqlx.Open(...)
-	loader := sqlt.NewDefaultSqlLoader("path/*.tpl")
+	loader := sqlt.NewDefaultSqlRender("path/*.tpl")
 	dbop := sqlt.New(db, loader)
 
 	param := make(map[string]interface{})
@@ -15,10 +15,10 @@ go代码
 	param["s"] = ...
 	result, e := dbop.Select("defget", param)
 
-模板
+default模板
 
 		{{define "defget"}}
-			select * from {{.a}} where 
+			select * from {{.a}} where
 			{{if and .w .s}}
 				and {{.w}} like '%{{.s}}%'
 			{{end}}
@@ -26,16 +26,16 @@ go代码
 			{{if .id}}
 				and id = :id
 			{{end}}
-			
+
 			{{if .g}}
 				group by {{.g}}
 			{{end}}
-			
+
 			{{if .h}}
 				having by {{.h}}
 			{{end}}
-			
+
 			{{if .o}}
 				order by {{.o}}
-			{{end}} 
+			{{end}}
 		{{end}}

@@ -1,8 +1,8 @@
 package sqlt
 
 type (
-	SqlLoader interface {
-		LoadSql(id string, data interface{}) (string, int, error)
+	SqlRenderer interface {
+		RenderSql(id string, data interface{}) (string, int, error)
 	}
 
 	ColScanner interface {
