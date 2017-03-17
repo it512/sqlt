@@ -13,11 +13,8 @@ type (
 
 func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, error) {
 	buffer := new(bytes.Buffer)
-	if l.t.ExecuteTemplate(buffer, id, param) != nil {
-		return "", 0, nil
-	}
-
-	return buffer.String(), 0, nil
+	e := l.t.ExecuteTemplate(buffer, id, param)
+	return buffer.String(), 0, e
 }
 
 func NewDefaultSqlLoader(pattern string) *DefaultSqlLoader {
