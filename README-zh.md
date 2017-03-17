@@ -7,7 +7,7 @@ sqlt是一个模仿mybatis的go sqlmapping 实现，本质上，sqlt是数据库
 go代码  
 
 	db := sqlx.Open(...)
-	loader := sqlt.NewDefaultTemplateSqlLoader("path/*.tpl")
+	loader := sqlt.NewDefaultSqlLoader("path/*.tpl")
 	dbop := sqlt.New(db, loader)
 
 	param := make(map[string]interface{})
