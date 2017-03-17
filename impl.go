@@ -4,12 +4,12 @@ import "github.com/jmoiron/sqlx"
 
 type (
 	DbOp struct {
-		db *sqlx.DB
+		db sqlx.Ext
 		l  SqlLoader
 	}
 
 	TxOp struct {
-		tx *sqlx.Tx
+		tx sqlx.Ext
 		l  SqlLoader
 	}
 
