@@ -16,6 +16,10 @@ type (
 	}
 )
 
+var (
+	sqlTypeMap = make(map[string]int)
+)
+
 func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, error) {
 	buffer := new(bytes.Buffer)
 	e := l.t.ExecuteTemplate(buffer, id, param)
@@ -25,7 +29,7 @@ func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, e
 
 	if e != nil {
 		sql = buffer.String()
-		sqlType = determineSqlType(&sql)
+		sqlType = determineSqlType(id)
 		if l.l.IsDebugEnable() {
 			l.l.Debugln(sql, sqlType, param)
 		}
@@ -34,12 +38,19 @@ func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, e
 	return sql, sqlType, e
 }
 
-func determineSqlType(sql *string) int {
-	if strings.ContainsAny(*sql, "readonly") {
-		return SQL_TYPE_READONLY
+func determineSqlType(id string) int {
+	if i, ok := sqlTypeMap[id]; ok {
+		return i
 	}
 
-	return SQL_TYPE_NORMAL
+	var t int = SQL_TYPE_NORMAL
+
+	if strings.ContainsAny(id, "readonly") {
+		t = SQL_TYPE_READONLY
+	}
+
+	sqlTypeMap[id] = t
+	return t
 }
 
 func NewDefaultSqlLoader(pattern string) *DefaultSqlLoader {
