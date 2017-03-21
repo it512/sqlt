@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"text/template"
 
+	"strings"
+
 	log "github.com/it512/slf4go"
 )
 
@@ -19,14 +21,25 @@ func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, e
 	e := l.t.ExecuteTemplate(buffer, id, param)
 
 	var sql string
+	var sqlType int = SQL_TYPE_NORMAL
+
 	if e != nil {
 		sql = buffer.String()
+		sqlType = determineSqlType(&sql)
 		if l.l.IsDebugEnable() {
-			l.l.Debugln(sql, param)
+			l.l.Debugln(sql, sqlType, param)
 		}
 	}
 
-	return sql, 0, e
+	return sql, sqlType, e
+}
+
+func determineSqlType(sql *string) int {
+	if strings.ContainsAny(*sql, "readonly") {
+		return SQL_TYPE_READONLY
+	}
+
+	return SQL_TYPE_NORMAL
 }
 
 func NewDefaultSqlLoader(pattern string) *DefaultSqlLoader {

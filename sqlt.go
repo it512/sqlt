@@ -34,3 +34,8 @@ type (
 		SqlOperator
 	}
 )
+
+const (
+	SQL_TYPE_NORMAL   = 0
+	SQL_TYPE_READONLY = 1
+)
