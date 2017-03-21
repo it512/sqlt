@@ -2,37 +2,42 @@ package sqlt
 
 import (
 	"bytes"
-	"log"
 	"text/template"
+
+	log "github.com/it512/slf4go"
 )
 
 type (
 	DefaultSqlLoader struct {
 		t *template.Template
-		l *log.Logger
+		l log.Logger
 	}
 )
 
 func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, error) {
 	buffer := new(bytes.Buffer)
 	e := l.t.ExecuteTemplate(buffer, id, param)
-	sql := buffer.String()
 
-	if l.l != nil {
-		if e != nil {
-			l.l.Panicln(e)
+	var sql string
+	if e != nil {
+		sql = buffer.String()
+		if l.l.IsDebugEnable() {
+			l.l.Debugln(sql, param)
 		}
-		l.l.Println(sql, param)
 	}
+
 	return sql, 0, e
 }
 
 func NewDefaultSqlLoader(pattern string) *DefaultSqlLoader {
-	return NewSqlLoader(pattern, nil, make(template.FuncMap))
+	return NewSqlLoader(pattern, make(template.FuncMap))
 }
 
-func NewSqlLoader(pattern string, l *log.Logger, funcMap template.FuncMap) *DefaultSqlLoader {
+func NewSqlLoader(pattern string, funcMap template.FuncMap) *DefaultSqlLoader {
 	tpl := template.Must(template.ParseGlob(pattern))
 	tpl.Funcs(funcMap)
-	return &DefaultSqlLoader{t: tpl, l: l}
+
+	logger := log.GetLogger("sqlt-default-loader")
+
+	return &DefaultSqlLoader{t: tpl, l: logger}
 }
