@@ -9,8 +9,6 @@ type (
 		Columns() ([]string, error)
 		Scan(dest ...interface{}) error
 		Err() error
-		Close() error
-		Next() bool
 	}
 
 	RowHandler interface {
