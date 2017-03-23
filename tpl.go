@@ -27,7 +27,7 @@ func (l *DefaultSqlLoader) LoadSql(id string, param interface{}) (string, int, e
 	var sql string
 	var sqlType int = SQL_TYPE_NORMAL
 
-	if e != nil {
+	if e == nil {
 		sql = buffer.String()
 		sqlType = determineSqlType(id)
 		if l.l.IsDebugEnable() {
