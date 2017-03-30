@@ -14,25 +14,6 @@ type (
 	RowHandler interface {
 		HandleRow(r ColScanner)
 	}
-
-	SqlOperator interface {
-		InsertUpdateDelete(id string, p interface{}) (int64, error)
-
-		Select(id string, p interface{}) ([]map[string]interface{}, error)
-		SelectWithRowHandler(id string, p interface{}, h RowHandler) error
-	}
-
-	SqlTxCommitter interface {
-		Commit() error
-	}
-
-	SqlTxBeginner interface {
-		Begin() (SqlTxOperator, error)
-	}
-
-	SqlTxRollbacker interface {
-		Rollback() error
-	}
 )
 
 const (
