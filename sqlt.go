@@ -22,16 +22,16 @@ type (
 		SelectWithRowHandler(id string, p interface{}, h RowHandler) error
 	}
 
-	SqlDbOperator interface {
-		Begin() (SqlTxOperator, error)
-		SqlOperator
+	SqlTxCommitter interface {
+		Commit() error
 	}
 
-	SqlTxOperator interface {
-		Commit() error
-		Rollback() error
+	SqlTxBeginner interface {
+		Begin() (SqlTxOperator, error)
+	}
 
-		SqlOperator
+	SqlTxRollbacker interface {
+		Rollback() error
 	}
 )
 
