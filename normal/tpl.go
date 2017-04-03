@@ -18,6 +18,10 @@ type (
 	}
 )
 
+var (
+	selectBytes []byte = []byte("select")
+)
+
 func (s *NormalMappedSql) GetSql() (string, error) {
 	return s.String(), nil
 }
@@ -31,7 +35,7 @@ func (s *NormalMappedSql) GetParam() interface{} {
 }
 
 func (s *NormalMappedSql) IsReadOnly() bool {
-	return strings.HasSuffix(s.Id, "-r")
+	return strings.HasSuffix(s.Id, "-r") || bytes.Contains(s.Bytes(), selectBytes)
 }
 
 type (
