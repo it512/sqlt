@@ -6,26 +6,30 @@ var (
 	nilParam = make(map[string]interface{})
 )
 
-func insertDeleteUpdate(l SqlLoader, ext sqlx.Ext, id string, param interface{}) (int64, error) {
-	sql, _, e := l.LoadSql(id, param)
-	oops(e)
+func insertDeleteUpdate(msql MappedSql, ext sqlx.Ext) (int64, error) {
+	sql, e := msql.GetSql()
+	if e != nil {
+		return -1, e
+	}
 
-	var p = param
+	var p = msql.GetParam()
 	if p == nil {
 		p = nilParam
 	}
 	result, e := sqlx.NamedExec(ext, sql, p)
 	if e != nil {
-		return 0, e
+		return -1, e
 	}
 	return result.RowsAffected()
 }
 
-func selectWithRowHandler(l SqlLoader, ext sqlx.Ext, id string, param interface{}, rh RowHandler) error {
-	sql, _, e := l.LoadSql(id, param)
-	oops(e)
+func selectWithRowHandler(msql MappedSql, ext sqlx.Ext, rh RowHandler) error {
+	sql, e := msql.GetSql()
+	if e != nil {
+		return e
+	}
 
-	var p = param
+	var p = msql.GetParam()
 	if p == nil {
 		p = nilParam
 	}

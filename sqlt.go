@@ -1,8 +1,14 @@
 package sqlt
 
 type (
+	MappedSql interface {
+		GetSql() (string, error)
+		GetParam() interface{}
+		GetId() string
+	}
+
 	SqlLoader interface {
-		LoadSql(id string, data interface{}) (string, int, error)
+		LoadSql(id string, data interface{}) (MappedSql, error)
 	}
 
 	ColScanner interface {
@@ -14,9 +20,4 @@ type (
 	RowHandler interface {
 		HandleRow(r ColScanner)
 	}
-)
-
-const (
-	SQL_TYPE_NORMAL   = 0
-	SQL_TYPE_READONLY = 1
 )

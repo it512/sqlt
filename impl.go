@@ -1,16 +1,14 @@
 package sqlt
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/it512/dsds"
+	"github.com/jmoiron/sqlx"
+)
 
 type (
 	DbOp struct {
-		db *sqlx.DB
-		l  SqlLoader
-	}
-
-	TxOp struct {
-		tx *sqlx.Tx
-		l  SqlLoader
+		l     SqlLoader
+		dbset dsds.DbSet
 	}
 
 	defRowHandler struct {
@@ -25,8 +23,27 @@ func (rh *defRowHandler) HandleRow(r ColScanner) {
 	}
 }
 
+func (c *DbOp) processMapped(id string, param interface{}) (sqlx.Ext, MappedSql, error) {
+	mappedSql, e := c.l.LoadSql(id, param)
+	if e != nil {
+		return nil, nil, e
+	}
+
+	excuter, e := c.dbset.GetDb(mappedSql)
+	if e != nil {
+		return nil, nil, e
+	}
+
+	return excuter, mappedSql, nil
+}
+
 func (c *DbOp) SelectWithRowHandler(id string, param interface{}, rh RowHandler) error {
-	return selectWithRowHandler(c.l, c.db, id, param, rh)
+	excuter, mappedSql, e := c.processMapped(id, param)
+	if e != nil {
+		return e
+	}
+
+	return selectWithRowHandler(mappedSql, excuter, rh)
 }
 
 func (c *DbOp) Select(id string, param interface{}) ([]map[string]interface{}, error) {
@@ -36,19 +53,52 @@ func (c *DbOp) Select(id string, param interface{}) ([]map[string]interface{}, e
 }
 
 func (c *DbOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
-	return insertDeleteUpdate(c.l, c.db, id, param)
+	excuter, mappedSql, e := c.processMapped(id, param)
+	if e != nil {
+		return -1, e
+	}
+	return insertDeleteUpdate(mappedSql, excuter)
 }
 
-func (c *DbOp) Begin() (*TxOp, error) {
-	tx, e := c.db.Beginx()
+func (c *DbOp) BeginTransWithDb(i interface{}) (*TxOp, error) {
+	db, e := c.dbset.GetDb(i)
 	if e != nil {
 		return nil, e
 	}
+
+	tx, e := db.Beginx()
+	if e != nil {
+		return nil, e
+	}
+
 	return &TxOp{tx: tx, l: c.l}, nil
 }
 
+func (c *DbOp) BeginTrans() (*TxOp, error) {
+	return c.BeginTransWithDb(nil)
+}
+
+type (
+	TxOp struct {
+		tx *sqlx.Tx
+		l  SqlLoader
+	}
+)
+
+func (t *TxOp) processMapped(id string, param interface{}) (sqlx.Ext, MappedSql, error) {
+	mappedSql, e := t.l.LoadSql(id, param)
+	if e != nil {
+		return nil, nil, e
+	}
+	return t.tx, mappedSql, nil
+}
+
 func (t *TxOp) SelectWithRowHandler(id string, param interface{}, rh RowHandler) error {
-	return selectWithRowHandler(t.l, t.tx, id, param, rh)
+	excuter, mappedSql, e := t.processMapped(id, param)
+	if e != nil {
+		return e
+	}
+	return selectWithRowHandler(mappedSql, excuter, rh)
 }
 
 func (t *TxOp) Select(id string, param interface{}) ([]map[string]interface{}, error) {
@@ -58,13 +108,17 @@ func (t *TxOp) Select(id string, param interface{}) ([]map[string]interface{}, e
 }
 
 func (t *TxOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
-	return insertDeleteUpdate(t.l, t.tx, id, param)
+	excuter, mappedSql, e := t.processMapped(id, param)
+	if e != nil {
+		return -1, e
+	}
+	return insertDeleteUpdate(mappedSql, excuter)
 }
 
-func (t *TxOp) Commit() error {
+func (t *TxOp) CommitTrans() error {
 	return t.tx.Commit()
 }
 
-func (t *TxOp) Rollback() error {
+func (t *TxOp) RollbackTrans() error {
 	return t.tx.Rollback()
 }
