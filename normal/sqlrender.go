@@ -40,5 +40,5 @@ func NewStandardTemplateRenderWithFuncs(pattern string, funcMap template.FuncMap
 }
 
 func NewStandardTemplateRender(pattern string) *StandardTemplateRender {
-	return NewStandardTemplateRenderWithFunc(pattern, make(template.FuncMap))
+	return NewStandardTemplateRenderWithFuncs(pattern, make(template.FuncMap))
 }
