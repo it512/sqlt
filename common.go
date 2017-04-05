@@ -7,7 +7,7 @@ var (
 )
 
 func checkParamNilWithDef(param interface{}, def interface{}) interface{} {
-	if param == nil {
+	if param != nil {
 		return param
 	}
 
