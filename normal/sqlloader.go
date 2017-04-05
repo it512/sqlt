@@ -11,7 +11,7 @@ type (
 	}
 
 	NormalSqlLoader struct {
-		T     SqlRender
+		R     SqlRender
 		L     log.Logger
 		Debug bool
 	}
@@ -23,18 +23,16 @@ func (l *NormalSqlLoader) LoadSql(id string, param interface{}) (sqlt.MappedSql,
 	mappedSql.Param = param
 
 	if l.Debug {
-		if r, ok := l.T.(reloader); ok {
+		if r, ok := l.R.(reloader); ok {
 			r.Reload()
 		}
 	}
 
-	e := l.T.Render(mappedSql, id, param)
+	e := l.R.Render(mappedSql, id, param)
 
-	if e == nil {
-		if l.L.IsDebugEnable() {
-			if sql, err := mappedSql.GetSql(); err == nil {
-				l.L.Debugln(sql, param)
-			}
+	if l.L.IsDebugEnable() && e == nil {
+		if sql, err := mappedSql.GetSql(); err == nil {
+			l.L.Debugln(sql, param)
 		}
 	}
 
@@ -42,8 +40,7 @@ func (l *NormalSqlLoader) LoadSql(id string, param interface{}) (sqlt.MappedSql,
 }
 
 func NewNormalSqlLoader(pattern string) *NormalSqlLoader {
-	tr := NewStandardTemplateRender(pattern)
+	r := NewStandardTemplateRender(pattern)
 	logger := log.GetLogger("sqlt-default-loader")
-
-	return &NormalSqlLoader{T: tr, L: logger, Debug: false}
+	return &NormalSqlLoader{R: r, L: logger, Debug: false}
 }

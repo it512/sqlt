@@ -3,37 +3,37 @@ package sqlt
 import "github.com/jmoiron/sqlx"
 
 var (
-	nilParam = make(map[string]interface{})
+	defParam = make(map[string]interface{})
 )
 
-func insertDeleteUpdate(msql MappedSql, ext sqlx.Ext) (int64, error) {
+func checkParamNilWithDef(param interface{}, def interface{}) interface{} {
+	if param == nil {
+		return param
+	}
+
+	return def
+}
+
+func insertDeleteUpdate(msql MappedSql, ext sqlx.Ext, param interface{}) (int64, error) {
 	sql, e := msql.GetSql()
 	if e != nil {
 		return -1, e
 	}
 
-	var p = msql.GetParam()
-	if p == nil {
-		p = nilParam
-	}
-	result, e := sqlx.NamedExec(ext, sql, p)
+	result, e := sqlx.NamedExec(ext, sql, checkParamNilWithDef(param, defParam))
 	if e != nil {
 		return -1, e
 	}
 	return result.RowsAffected()
 }
 
-func selectWithRowHandler(msql MappedSql, ext sqlx.Ext, rh RowHandler) error {
+func selectWithRowHandler(msql MappedSql, ext sqlx.Ext, param interface{}, rh RowHandler) error {
 	sql, e := msql.GetSql()
 	if e != nil {
 		return e
 	}
 
-	var p = msql.GetParam()
-	if p == nil {
-		p = nilParam
-	}
-	rows, e := sqlx.NamedQuery(ext, sql, p)
+	rows, e := sqlx.NamedQuery(ext, sql, checkParamNilWithDef(param, defParam))
 	if e != nil {
 		return e
 	}

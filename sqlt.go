@@ -3,8 +3,6 @@ package sqlt
 type (
 	MappedSql interface {
 		GetSql() (string, error)
-		GetParam() interface{}
-		GetId() string
 	}
 
 	SqlLoader interface {

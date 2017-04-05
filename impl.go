@@ -43,7 +43,7 @@ func (c *DbOp) SelectWithRowHandler(id string, param interface{}, rh RowHandler)
 		return e
 	}
 
-	return selectWithRowHandler(mappedSql, excuter, rh)
+	return selectWithRowHandler(mappedSql, excuter, param, rh)
 }
 
 func (c *DbOp) Select(id string, param interface{}) ([]map[string]interface{}, error) {
@@ -57,10 +57,10 @@ func (c *DbOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
 	if e != nil {
 		return -1, e
 	}
-	return insertDeleteUpdate(mappedSql, excuter)
+	return insertDeleteUpdate(mappedSql, excuter, param)
 }
 
-func (c *DbOp) BeginTransWithDb(i interface{}) (*TxOp, error) {
+func (c *DbOp) BeginWithDb(i interface{}) (*TxOp, error) {
 	db, e := c.dbset.GetDb(i)
 	if e != nil {
 		return nil, e
@@ -74,8 +74,8 @@ func (c *DbOp) BeginTransWithDb(i interface{}) (*TxOp, error) {
 	return &TxOp{tx: tx, l: c.l}, nil
 }
 
-func (c *DbOp) BeginTrans() (*TxOp, error) {
-	return c.BeginTransWithDb(nil)
+func (c *DbOp) Begin() (*TxOp, error) {
+	return c.BeginWithDb(nil)
 }
 
 type (
@@ -98,7 +98,7 @@ func (t *TxOp) SelectWithRowHandler(id string, param interface{}, rh RowHandler)
 	if e != nil {
 		return e
 	}
-	return selectWithRowHandler(mappedSql, excuter, rh)
+	return selectWithRowHandler(mappedSql, excuter, param, rh)
 }
 
 func (t *TxOp) Select(id string, param interface{}) ([]map[string]interface{}, error) {
@@ -112,13 +112,13 @@ func (t *TxOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
 	if e != nil {
 		return -1, e
 	}
-	return insertDeleteUpdate(mappedSql, excuter)
+	return insertDeleteUpdate(mappedSql, excuter, param)
 }
 
-func (t *TxOp) CommitTrans() error {
+func (t *TxOp) Commit() error {
 	return t.tx.Commit()
 }
 
-func (t *TxOp) RollbackTrans() error {
+func (t *TxOp) Rollback() error {
 	return t.tx.Rollback()
 }

@@ -33,10 +33,9 @@ func (st *StandardTemplateRender) Reload() {
 	st.lock.Unlock()
 }
 
-func NewStandardTemplateRenderWithFunc(pattern string, funcMap template.FuncMap) *StandardTemplateRender {
+func NewStandardTemplateRenderWithFuncs(pattern string, funcMap template.FuncMap) *StandardTemplateRender {
 	tpl := template.Must(template.ParseGlob(pattern))
 	tpl.Funcs(funcMap)
-
 	return &StandardTemplateRender{pattern: pattern, funcMap: funcMap, t: tpl, lock: new(sync.RWMutex)}
 }
 
