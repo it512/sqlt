@@ -52,12 +52,12 @@ func (c *DbOp) Select(id string, param interface{}) ([]map[string]interface{}, e
 	return rh.vs, e
 }
 
-func (c *DbOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
+func (c *DbOp) Execute(id string, param interface{}) (int64, error) {
 	excuter, mappedSql, e := c.processMapped(id, param)
 	if e != nil {
 		return -1, e
 	}
-	return insertDeleteUpdate(mappedSql, excuter, param)
+	return execute(mappedSql, excuter, param)
 }
 
 func (c *DbOp) BeginWithDb(i interface{}) (*TxOp, error) {
@@ -107,12 +107,12 @@ func (t *TxOp) Select(id string, param interface{}) ([]map[string]interface{}, e
 	return rh.vs, e
 }
 
-func (t *TxOp) InsertDeleteUpdate(id string, param interface{}) (int64, error) {
+func (t *TxOp) Execute(id string, param interface{}) (int64, error) {
 	excuter, mappedSql, e := t.processMapped(id, param)
 	if e != nil {
 		return -1, e
 	}
-	return insertDeleteUpdate(mappedSql, excuter, param)
+	return execute(mappedSql, excuter, param)
 }
 
 func (t *TxOp) Commit() error {

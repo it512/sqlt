@@ -14,7 +14,7 @@ func checkParamNilWithDef(param interface{}, def interface{}) interface{} {
 	return def
 }
 
-func insertDeleteUpdate(msql MappedSql, ext sqlx.Ext, param interface{}) (int64, error) {
+func execute(msql MappedSql, ext sqlx.Ext, param interface{}) (int64, error) {
 	sql, e := msql.GetSql()
 	if e != nil {
 		return -1, e
