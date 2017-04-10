@@ -6,16 +6,16 @@ import (
 )
 
 type (
-	SilceMapRowHander struct {
+	SliceMapRowHandler struct {
 		Data [][]map[string]interface{}
 	}
 )
 
-func (h *SilceMapRowHander) AddResultSet() {
+func (h *SliceMapRowHandler) AddResultSet() {
 	h.Data = append(h.Data, make([]map[string]interface{}, 0, 10))
 }
 
-func (h *SilceMapRowHander) HandleRow(r sqlt.RowScanner) {
+func (h *SliceMapRowHandler) HandleRow(r sqlt.RowScanner) {
 	idx := len(h.Data) - 1
 	m := make(map[string]interface{})
 	if e := sqlx.MapScan(r, m); e == nil {

@@ -19,4 +19,10 @@ type (
 		AddResultSet()
 		HandleRow(r RowScanner)
 	}
+
+	DbOper interface {
+		Query(id string, data interface{}, mrh MultiRowsHandler) error
+		Exec(id string, data interface{}) (int64, error)
+		ExecReturning(id string, data interface{}, mrh MultiRowsHandler) error
+	}
 )
