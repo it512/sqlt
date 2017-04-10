@@ -40,7 +40,7 @@ func (st *StdTemplateRender) Reload() {
 func NewStdTemplateRenderWithFuncs(pattern string, funcMap template.FuncMap) *StdTemplateRender {
 	tpl := template.Must(template.ParseGlob(pattern))
 	tpl.Funcs(funcMap)
-	return &StdTemplateRender{pattern: pattern, funcMap: funcMap, t: tpl, lock: sync.RWMutex{}}
+	return &StdTemplateRender{pattern: pattern, funcMap: funcMap, t: tpl}
 }
 
 func NewStdTemplateRender(pattern string) *StdTemplateRender {
