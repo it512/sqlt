@@ -11,6 +11,17 @@ type (
 	}
 )
 
+var (
+	defData = struct{}{}
+)
+
+func dataIsNilWithDef(data interface{}) interface{} {
+	if data == nil {
+		return defData
+	}
+	return data
+}
+
 func processSqlDescriberWithDbManager(m dsds.DbManager, assembler SqlAssembler, id string, data interface{}) (prepareNameder, SqlDescriber, error) {
 	desc, e := assembler.AssembleSql(id, data)
 	if e != nil {
@@ -62,7 +73,7 @@ func query(p prepareNameder, desc SqlDescriber, data interface{}, mrh MultiRowsH
 		return e
 	}
 
-	rows, e := st.Queryx(data)
+	rows, e := st.Queryx(dataIsNilWithDef(data))
 	if e != nil {
 		return e
 	}
@@ -80,7 +91,7 @@ func exec(p prepareNameder, desc SqlDescriber, data interface{}) (int64, error) 
 	if e != nil {
 		return -1, e
 	}
-	r, e := st.Exec(data)
+	r, e := st.Exec(dataIsNilWithDef(data))
 
 	return r.RowsAffected()
 }
