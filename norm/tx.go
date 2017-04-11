@@ -1,48 +1,48 @@
-package notorm
+package norm
 
 import "github.com/it512/sqlt"
 
 type (
-	SyncTxOp struct {
+	TxNorm struct {
 		op *sqlt.TxOp
 		ctx
 		autoRollback bool
 	}
 )
 
-func (s *SyncTxOp) AutoRollback(b bool) *SyncTxOp {
+func (s *TxNorm) AutoRollback(b bool) *TxNorm {
 	s.autoRollback = b
 	return s
 }
 
-func (s *SyncTxOp) WithId(id string) *SyncTxOp {
+func (s *TxNorm) WithId(id string) *TxNorm {
 	s.id = id
 	return s
 }
 
-func (s *SyncTxOp) AddParam(k string, v interface{}) *SyncTxOp {
+func (s *TxNorm) AddParam(k string, v interface{}) *TxNorm {
 	if k != "" && v != nil {
 		s.param[k] = v
 	}
 	return s
 }
 
-func (s *SyncTxOp) WithHandler(mrh sqlt.MultiRowsHandler) *SyncTxOp {
+func (s *TxNorm) WithHandler(mrh sqlt.MultiRowsHandler) *TxNorm {
 	s.mrh = mrh
 	return s
 }
 
-func (s *SyncTxOp) ResetAll() *SyncTxOp {
+func (s *TxNorm) ResetAll() *TxNorm {
 	s.ctx = ctx{param: make(map[string]interface{})}
 	return s
 }
 
-func (s *SyncTxOp) Reset() *SyncTxOp {
+func (s *TxNorm) Reset() *TxNorm {
 	s.ctx = ctx{param: s.param}
 	return s
 }
 
-func (s *SyncTxOp) Query() *SyncTxOp {
+func (s *TxNorm) Query() *TxNorm {
 	e := s.op.Query(s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
@@ -54,7 +54,7 @@ func (s *SyncTxOp) Query() *SyncTxOp {
 	return s.Reset()
 }
 
-func (s *SyncTxOp) Exec() *SyncTxOp {
+func (s *TxNorm) Exec() *TxNorm {
 	_, e := s.op.Exec(s.id, s.param)
 	if e != nil {
 		if s.autoRollback {
@@ -65,7 +65,7 @@ func (s *SyncTxOp) Exec() *SyncTxOp {
 	return s.Reset()
 }
 
-func (s *SyncTxOp) ExecReturning() *SyncTxOp {
+func (s *TxNorm) ExecReturning() *TxNorm {
 	e := s.op.ExecReturning(s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
@@ -77,13 +77,13 @@ func (s *SyncTxOp) ExecReturning() *SyncTxOp {
 	return s.Reset()
 }
 
-func (s *SyncTxOp) Rollback() {
+func (s *TxNorm) Rollback() {
 	if err := s.op.Rollback(); err != nil {
 		panic(err)
 	}
 }
 
-func (s *SyncTxOp) Commit() Collator {
+func (s *TxNorm) Commit() Collator {
 	e := s.op.Commit()
 	if e != nil {
 		if s.autoRollback {
@@ -94,6 +94,6 @@ func (s *SyncTxOp) Commit() Collator {
 	return Collator{}
 }
 
-func NewSyncTxOp(op *sqlt.DbOp) *SyncTxOp {
-	return &SyncTxOp{autoRollback: true, ctx: ctx{param: make(map[string]interface{})}}
+func NewTxNorm(op *sqlt.DbOp) *TxNorm {
+	return &TxNorm{autoRollback: true, ctx: ctx{param: make(map[string]interface{})}}
 }

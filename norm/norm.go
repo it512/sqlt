@@ -1,4 +1,4 @@
-package notorm
+package norm
 
 import "github.com/it512/sqlt"
 

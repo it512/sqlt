@@ -40,7 +40,6 @@ func processNamedStmt(p prepareNameder, desc SqlDescriber) (*sqlx.NamedStmt, err
 		return nil, e
 	}
 	return p.PrepareNamed(sql)
-
 }
 
 func processMultiRowsHander(rows *sqlx.Rows, mrh MultiRowsHandler) {

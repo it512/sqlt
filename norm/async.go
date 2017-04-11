@@ -1,4 +1,4 @@
-package notorm
+package norm
 
 import (
 	"sync"
@@ -7,41 +7,41 @@ import (
 )
 
 type (
-	AsyncOp struct {
+	AsyncNorm struct {
 		op *sqlt.DbOp
 		ctx
 		wg sync.WaitGroup
 	}
 )
 
-func (s *AsyncOp) WithId(id string) *AsyncOp {
+func (s *AsyncNorm) WithId(id string) *AsyncNorm {
 	s.id = id
 	return s
 }
 
-func (s *AsyncOp) WithHandler(mrh sqlt.MultiRowsHandler) *AsyncOp {
+func (s *AsyncNorm) WithHandler(mrh sqlt.MultiRowsHandler) *AsyncNorm {
 	s.mrh = mrh
 	return s
 }
 
-func (s *AsyncOp) AddParam(k string, v interface{}) *AsyncOp {
+func (s *AsyncNorm) AddParam(k string, v interface{}) *AsyncNorm {
 	if k != "" && v != nil {
 		s.param[k] = v
 	}
 	return s
 }
 
-func (s *AsyncOp) ResetAll() *AsyncOp {
+func (s *AsyncNorm) ResetAll() *AsyncNorm {
 	s.ctx = ctx{param: make(map[string]interface{})}
 	return s
 }
 
-func (s *AsyncOp) Reset() *AsyncOp {
+func (s *AsyncNorm) Reset() *AsyncNorm {
 	s.ctx = ctx{param: s.param}
 	return s
 }
 
-func (s *AsyncOp) Query() *AsyncOp {
+func (s *AsyncNorm) Query() *AsyncNorm {
 	s.wg.Add(1)
 	go func(id string, param map[string]interface{}, mrh sqlt.MultiRowsHandler) {
 		defer s.wg.Done()
@@ -54,7 +54,7 @@ func (s *AsyncOp) Query() *AsyncOp {
 	return s.Reset()
 }
 
-func (s *AsyncOp) Exec() *AsyncOp {
+func (s *AsyncNorm) Exec() *AsyncNorm {
 	s.wg.Add(1)
 	go func(id string, param map[string]interface{}) {
 		defer s.wg.Done()
@@ -67,7 +67,7 @@ func (s *AsyncOp) Exec() *AsyncOp {
 	return s.Reset()
 }
 
-func (s *AsyncOp) ExecReturning() *AsyncOp {
+func (s *AsyncNorm) ExecReturning() *AsyncNorm {
 	s.wg.Add(1)
 	go func(id string, param map[string]interface{}, mrh sqlt.MultiRowsHandler) {
 		defer s.wg.Done()
@@ -80,11 +80,15 @@ func (s *AsyncOp) ExecReturning() *AsyncOp {
 	return s.Reset()
 }
 
-func (s *AsyncOp) Wait() Collator {
+func (s *AsyncNorm) Wait() Collator {
 	s.wg.Wait()
 	return Collator{}
 }
 
-func NewAsyncOp(op *sqlt.DbOp) *AsyncOp {
-	return &AsyncOp{op: op, ctx: ctx{param: make(map[string]interface{})}}
+func (s *AsyncNorm) Cancel() {
+	s.wg.Wait()
+}
+
+func NewAsyncNorm(op *sqlt.DbOp) *AsyncNorm {
+	return &AsyncNorm{op: op, ctx: ctx{param: make(map[string]interface{})}}
 }
