@@ -2,9 +2,9 @@ package std
 
 import (
 	"bytes"
-	"html/template"
 	"io"
 	"sync"
+	"text/template"
 
 	log "github.com/it512/slf4go"
 	"github.com/it512/sqlt"
