@@ -24,6 +24,13 @@ func (s *AsyncNorm) WithHandler(mrh sqlt.MultiRowsHandler) *AsyncNorm {
 	return s
 }
 
+func (s *AsyncNorm) AddAllParams(m map[string]interface{}) *AsyncNorm {
+	for k, v := range m {
+		s.param[k] = v
+	}
+	return s
+}
+
 func (s *AsyncNorm) AddParam(k string, v interface{}) *AsyncNorm {
 	if k != "" && v != nil {
 		s.param[k] = v

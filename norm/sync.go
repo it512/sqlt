@@ -19,6 +19,13 @@ func (s *SyncNorm) WithHandler(mrh sqlt.MultiRowsHandler) *SyncNorm {
 	return s
 }
 
+func (s *SyncNorm) AddAllParams(m map[string]interface{}) *SyncNorm {
+	for k, v := range m {
+		s.param[k] = v
+	}
+	return s
+}
+
 func (s *SyncNorm) AddParam(k string, v interface{}) *SyncNorm {
 	if k != "" && v != nil {
 		s.param[k] = v
