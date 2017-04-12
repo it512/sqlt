@@ -30,16 +30,16 @@ func (st *StdTemplateRender) Render(w io.Writer, id string, param interface{}) e
 }
 
 func (st *StdTemplateRender) Reload() {
-	tpl := template.Must(template.ParseGlob(st.pattern))
-	tpl.Funcs(st.funcMap)
+	tpl := template.New("sqlt-std-template").Funcs(st.funcMap)
+	tpl = template.Must(tpl.ParseGlob(st.pattern))
 	st.lock.Lock()
 	st.t = tpl
 	st.lock.Unlock()
 }
 
 func NewStdTemplateRenderWithFuncs(pattern string, funcMap template.FuncMap) *StdTemplateRender {
-	tpl := template.Must(template.ParseGlob(pattern))
-	tpl.Funcs(funcMap)
+	tpl := template.New("sqlt-std-template").Funcs(funcMap)
+	tpl = template.Must(tpl.ParseGlob(pattern))
 	return &StdTemplateRender{pattern: pattern, funcMap: funcMap, t: tpl}
 }
 
