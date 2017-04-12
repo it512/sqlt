@@ -93,8 +93,13 @@ func (l *StdSqlAssembler) AssembleSql(id string, data interface{}) (sqlt.SqlDesc
 	return desc, e
 }
 
-func NewStdSqlAssembler(pattern string) *StdSqlAssembler {
+func NewStdSqlAssemblerSimple(pattern string) *StdSqlAssembler {
 	r := NewStdTemplateRender(pattern)
 	logger := log.GetLogger("sqlt-default-loader")
 	return &StdSqlAssembler{Render: r, Logger: logger, Debug: false}
+}
+
+func NewStdSqlAssembler(r SqlRender, debug bool) *StdSqlAssembler {
+	logger := log.GetLogger("sqlt-default-loader")
+	return &StdSqlAssembler{Render: r, Logger: logger, Debug: debug}
 }
