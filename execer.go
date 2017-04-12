@@ -91,6 +91,7 @@ func exec(p prepareNameder, desc SqlDescriber, data interface{}) (int64, error) 
 	if e != nil {
 		return -1, e
 	}
+	defer st.Close()
 	r, e := st.Exec(dataIsNilWithDef(data))
 
 	return r.RowsAffected()
