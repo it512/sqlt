@@ -37,6 +37,18 @@ func (c *DbOp) ExecRtnContext(ctx context.Context, id string, data interface{}, 
 	return c.QueryContext(ctx, id, data, mrh)
 }
 
+func (c *DbOp) Query(id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.QueryContext(context.Background(), id, data, mrh)
+}
+
+func (c *DbOp) Exec(id string, data interface{}) (int64, error) {
+	return c.ExecContext(context.Background(), id, data)
+}
+
+func (c *DbOp) ExecRtn(id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.ExecRtnContext(context.Background(), id, data, mrh)
+}
+
 func (c *DbOp) BeginTxWithDb(ctx context.Context, i interface{}, opt *sql.TxOptions) (*TxOp, error) {
 	db, e := c.manager.GetDb(i)
 	if e != nil {
@@ -82,6 +94,18 @@ func (c *TxOp) ExecContext(ctx context.Context, id string, data interface{}) (in
 
 func (c *TxOp) ExecRtnContext(ctx context.Context, id string, data interface{}, mrh MultiRowsHandler) error {
 	return c.QueryContext(ctx, id, data, mrh)
+}
+
+func (c *TxOp) Query(id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.QueryContext(context.Background(), id, data, mrh)
+}
+
+func (c *TxOp) Exec(id string, data interface{}) (int64, error) {
+	return c.ExecContext(context.Background(), id, data)
+}
+
+func (c *TxOp) ExecRtn(id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.ExecRtnContext(context.Background(), id, data, mrh)
 }
 
 func (c *TxOp) Commit() error {
