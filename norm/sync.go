@@ -1,11 +1,18 @@
 package norm
 
-import "github.com/it512/sqlt"
+import (
+	"context"
+
+	"github.com/it512/sqlt"
+)
 
 type (
 	SyncNorm struct {
-		op *sqlt.DbOp
-		ctx
+		op    *sqlt.DbOp
+		id    string
+		param map[string]interface{}
+		mrh   sqlt.MultiRowsHandler
+		c     context.Context
 	}
 )
 
@@ -19,7 +26,7 @@ func (s *SyncNorm) WithHandler(mrh sqlt.MultiRowsHandler) *SyncNorm {
 	return s
 }
 
-func (s *SyncNorm) AddAllParams(m map[string]interface{}) *SyncNorm {
+func (s *SyncNorm) AddAll(m map[string]interface{}) *SyncNorm {
 	for k, v := range m {
 		s.param[k] = v
 	}
@@ -33,48 +40,47 @@ func (s *SyncNorm) AddParam(k string, v interface{}) *SyncNorm {
 	return s
 }
 
-func (s *SyncNorm) ResetAll() *SyncNorm {
-	s.ctx = ctx{param: make(map[string]interface{})}
+func (s *SyncNorm) RemoveParam(k string) *SyncNorm {
+	delete(s.param, k)
 	return s
 }
 
 func (s *SyncNorm) Reset() *SyncNorm {
-	s.ctx = ctx{param: s.param}
+	s.param = make(map[string]interface{})
+	s.id = ""
+	s.mrh = nil
 	return s
 }
 
 func (s *SyncNorm) Query() *SyncNorm {
-	e := s.op.Query(s.id, s.param, s.mrh)
+	e := s.op.QueryContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		panic(e)
 	}
-
-	return s.Reset()
+	return s
 }
 
 func (s *SyncNorm) Exec() *SyncNorm {
-	_, e := s.op.Exec(s.id, s.param)
+	_, e := s.op.ExecContext(s.c, s.id, s.param)
 	if e != nil {
 		panic(e)
 	}
-	return s.Reset()
+	return s
 }
 
-func (s *SyncNorm) ExecReturning() *SyncNorm {
-	e := s.op.ExecReturning(s.id, s.param, s.mrh)
+func (s *SyncNorm) ExecRtn() *SyncNorm {
+	e := s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		panic(e)
 	}
-
-	return s.Reset()
+	return s
 }
 
 func (s *SyncNorm) Finish() Collator {
+	s.c = nil
 	return Collator{}
 }
 
-func (s *SyncNorm) Cancel() {}
-
-func NewSyncNorm(op *sqlt.DbOp) *SyncNorm {
-	return &SyncNorm{op: op, ctx: ctx{param: make(map[string]interface{})}}
+func (s *SyncNorm) Cancel() {
+	s.c = nil
 }

@@ -1,11 +1,18 @@
 package norm
 
-import "github.com/it512/sqlt"
+import (
+	"context"
+
+	"github.com/it512/sqlt"
+)
 
 type (
 	TxNorm struct {
-		op *sqlt.TxOp
-		ctx
+		id           string
+		param        map[string]interface{}
+		mrh          sqlt.MultiRowsHandler
+		c            context.Context
+		op           *sqlt.TxOp
 		autoRollback bool
 	}
 )
@@ -20,6 +27,18 @@ func (s *TxNorm) WithId(id string) *TxNorm {
 	return s
 }
 
+func (s *TxNorm) WithHandler(mrh sqlt.MultiRowsHandler) *TxNorm {
+	s.mrh = mrh
+	return s
+}
+
+func (s *TxNorm) AddAll(m map[string]interface{}) *TxNorm {
+	for k, v := range m {
+		s.param[k] = v
+	}
+	return s
+}
+
 func (s *TxNorm) AddParam(k string, v interface{}) *TxNorm {
 	if k != "" && v != nil {
 		s.param[k] = v
@@ -27,23 +46,20 @@ func (s *TxNorm) AddParam(k string, v interface{}) *TxNorm {
 	return s
 }
 
-func (s *TxNorm) WithHandler(mrh sqlt.MultiRowsHandler) *TxNorm {
-	s.mrh = mrh
-	return s
-}
-
-func (s *TxNorm) ResetAll() *TxNorm {
-	s.ctx = ctx{param: make(map[string]interface{})}
+func (s *TxNorm) RemoveParam(k string) *TxNorm {
+	delete(s.param, k)
 	return s
 }
 
 func (s *TxNorm) Reset() *TxNorm {
-	s.ctx = ctx{param: s.param}
+	s.param = make(map[string]interface{})
+	s.id = ""
+	s.mrh = nil
 	return s
 }
 
 func (s *TxNorm) Query() *TxNorm {
-	e := s.op.Query(s.id, s.param, s.mrh)
+	e := s.op.QueryContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
 			s.Rollback()
@@ -55,7 +71,7 @@ func (s *TxNorm) Query() *TxNorm {
 }
 
 func (s *TxNorm) Exec() *TxNorm {
-	_, e := s.op.Exec(s.id, s.param)
+	_, e := s.op.ExecContext(s.c, s.id, s.param)
 	if e != nil {
 		if s.autoRollback {
 			s.Rollback()
@@ -65,8 +81,8 @@ func (s *TxNorm) Exec() *TxNorm {
 	return s.Reset()
 }
 
-func (s *TxNorm) ExecReturning() *TxNorm {
-	e := s.op.ExecReturning(s.id, s.param, s.mrh)
+func (s *TxNorm) ExecRtn() *TxNorm {
+	e := s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
 			s.Rollback()
@@ -92,8 +108,4 @@ func (s *TxNorm) Commit() Collator {
 		panic(e)
 	}
 	return Collator{}
-}
-
-func NewTxNorm(op *sqlt.DbOp) *TxNorm {
-	return &TxNorm{autoRollback: true, ctx: ctx{param: make(map[string]interface{})}}
 }

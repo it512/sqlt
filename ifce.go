@@ -1,8 +1,13 @@
 package sqlt
 
+import (
+	"context"
+)
+
 type (
 	SqlDescriber interface {
-		GetSql() (string, error)
+		GetSql(c context.Context) (string, context.Context, error)
+		Release()
 	}
 
 	SqlAssembler interface {
@@ -15,14 +20,12 @@ type (
 		Err() error
 	}
 
-	MultiRowsHandler interface {
-		AddResultSet()
+	RowsHandler interface {
 		HandleRow(r RowScanner)
 	}
 
-	DbOper interface {
-		Query(id string, data interface{}, mrh MultiRowsHandler) error
-		Exec(id string, data interface{}) (int64, error)
-		ExecReturning(id string, data interface{}, mrh MultiRowsHandler) error
+	MultiRowsHandler interface {
+		RowsHandler
+		AddResultSet()
 	}
 )

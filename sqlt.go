@@ -15,37 +15,35 @@ type (
 	}
 )
 
-func (c *DbOp) Query(id string, data interface{}, mrh MultiRowsHandler) error {
+func (c *DbOp) QueryContext(ctx context.Context, id string, data interface{}, mrh MultiRowsHandler) error {
 	p, d, e := processSqlDescriberWithDbManager(c.manager, c.assembler, id, data)
 	if e != nil {
 		return e
 	}
-	return query(p, d, data, mrh)
+	defer d.Release()
+	return query(ctx, p, d, data, mrh)
 }
 
-func (c *DbOp) Exec(id string, data interface{}) (int64, error) {
+func (c *DbOp) ExecContext(ctx context.Context, id string, data interface{}) (int64, error) {
 	p, d, e := processSqlDescriberWithDbManager(c.manager, c.assembler, id, data)
 	if e != nil {
 		return -1, e
 	}
-	return exec(p, d, data)
+	defer d.Release()
+	return exec(ctx, p, d, data)
 }
 
-func (c *DbOp) ExecReturning(id string, data interface{}, mrh MultiRowsHandler) error {
-	p, d, e := processSqlDescriberWithDbManager(c.manager, c.assembler, id, data)
-	if e != nil {
-		return e
-	}
-	return execRetruning(p, d, data, mrh)
+func (c *DbOp) ExecRtnContext(ctx context.Context, id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.QueryContext(ctx, id, data, mrh)
 }
 
-func (c *DbOp) BeginWithDb(i interface{}, opt *sql.TxOptions) (*TxOp, error) {
+func (c *DbOp) BeginTxWithDb(ctx context.Context, i interface{}, opt *sql.TxOptions) (*TxOp, error) {
 	db, e := c.manager.GetDb(i)
 	if e != nil {
 		return nil, e
 	}
 
-	tx, e := db.BeginTxx(context.Background(), opt)
+	tx, e := db.BeginTxx(ctx, opt)
 	if e != nil {
 		return nil, e
 	}
@@ -53,8 +51,8 @@ func (c *DbOp) BeginWithDb(i interface{}, opt *sql.TxOptions) (*TxOp, error) {
 	return &TxOp{tx: tx, assembler: c.assembler}, nil
 }
 
-func (c *DbOp) Begin() (*TxOp, error) {
-	return c.BeginWithDb(nil, nil)
+func (c *DbOp) BeginTx(ctx context.Context, opt *sql.TxOptions) (*TxOp, error) {
+	return c.BeginTxWithDb(ctx, nil, opt)
 }
 
 type (
@@ -64,28 +62,26 @@ type (
 	}
 )
 
-func (c *TxOp) Query(id string, data interface{}, mrh MultiRowsHandler) error {
+func (c *TxOp) QueryContext(ctx context.Context, id string, data interface{}, mrh MultiRowsHandler) error {
 	p, d, e := processSqlDescriberWithTx(c.tx, c.assembler, id, data)
 	if e != nil {
 		return e
 	}
-	return query(p, d, data, mrh)
+	defer d.Release()
+	return query(ctx, p, d, data, mrh)
 }
 
-func (c *TxOp) Exec(id string, data interface{}) (int64, error) {
+func (c *TxOp) ExecContext(ctx context.Context, id string, data interface{}) (int64, error) {
 	p, d, e := processSqlDescriberWithTx(c.tx, c.assembler, id, data)
 	if e != nil {
 		return -1, e
 	}
-	return exec(p, d, data)
+	defer d.Release()
+	return exec(ctx, p, d, data)
 }
 
-func (c *TxOp) ExecReturning(id string, data interface{}, mrh MultiRowsHandler) error {
-	p, d, e := processSqlDescriberWithTx(c.tx, c.assembler, id, data)
-	if e != nil {
-		return e
-	}
-	return execRetruning(p, d, data, mrh)
+func (c *TxOp) ExecRtnContext(ctx context.Context, id string, data interface{}, mrh MultiRowsHandler) error {
+	return c.QueryContext(ctx, id, data, mrh)
 }
 
 func (c *TxOp) Commit() error {
@@ -96,6 +92,6 @@ func (c *TxOp) Rollback() error {
 	return c.tx.Rollback()
 }
 
-func New(dbset dsds.DbManager, loader SqlAssembler) *DbOp {
+func NewSqlt(dbset dsds.DbManager, loader SqlAssembler) *DbOp {
 	return &DbOp{manager: dbset, assembler: loader}
 }
