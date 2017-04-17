@@ -3,6 +3,7 @@ package norm
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/it512/sqlt"
 )
@@ -53,4 +54,14 @@ func (n *Norm) NewTxNormWithContext(c context.Context, opt *sql.TxOptions) *TxNo
 
 func NewNorm(dbop *sqlt.DbOp) *Norm {
 	return &Norm{dbop: dbop}
+}
+
+var (
+	errorStatus = errors.New("context is nil!")
+)
+
+func mustCheckContext(c context.Context) {
+	if c == nil {
+		panic(errorStatus)
+	}
 }

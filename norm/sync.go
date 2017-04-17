@@ -52,27 +52,38 @@ func (s *SyncNorm) Reset() *SyncNorm {
 	return s
 }
 
+func (s *SyncNorm) reset() {
+	s.id = ""
+	s.mrh = nil
+}
+
 func (s *SyncNorm) Query() *SyncNorm {
+	mustCheckContext(s.c)
 	e := s.op.QueryContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 
 func (s *SyncNorm) Exec() *SyncNorm {
+	mustCheckContext(s.c)
 	_, e := s.op.ExecContext(s.c, s.id, s.param)
 	if e != nil {
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 
 func (s *SyncNorm) ExecRtn() *SyncNorm {
+	mustCheckContext(s.c)
 	e := s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 

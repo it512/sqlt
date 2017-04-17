@@ -58,7 +58,13 @@ func (s *TxNorm) Reset() *TxNorm {
 	return s
 }
 
+func (s *TxNorm) reset() {
+	s.id = ""
+	s.mrh = nil
+}
+
 func (s *TxNorm) Query() *TxNorm {
+	mustCheckContext(s.c)
 	e := s.op.QueryContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
@@ -66,10 +72,12 @@ func (s *TxNorm) Query() *TxNorm {
 		}
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 
 func (s *TxNorm) Exec() *TxNorm {
+	mustCheckContext(s.c)
 	_, e := s.op.ExecContext(s.c, s.id, s.param)
 	if e != nil {
 		if s.autoRollback {
@@ -77,10 +85,12 @@ func (s *TxNorm) Exec() *TxNorm {
 		}
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 
 func (s *TxNorm) ExecRtn() *TxNorm {
+	mustCheckContext(s.c)
 	e := s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
 	if e != nil {
 		if s.autoRollback {
@@ -88,6 +98,7 @@ func (s *TxNorm) ExecRtn() *TxNorm {
 		}
 		panic(e)
 	}
+	s.reset()
 	return s
 }
 
@@ -95,6 +106,7 @@ func (s *TxNorm) Rollback() {
 	if err := s.op.Rollback(); err != nil {
 		panic(err)
 	}
+	s.c = nil
 }
 
 func (s *TxNorm) Commit() Collator {
@@ -105,5 +117,6 @@ func (s *TxNorm) Commit() Collator {
 		}
 		panic(e)
 	}
+	s.c = nil
 	return Collator{}
 }
