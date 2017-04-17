@@ -66,8 +66,7 @@ func (s *TxNorm) Query() *TxNorm {
 		}
 		panic(e)
 	}
-
-	return s.Reset()
+	return s
 }
 
 func (s *TxNorm) Exec() *TxNorm {
@@ -78,7 +77,7 @@ func (s *TxNorm) Exec() *TxNorm {
 		}
 		panic(e)
 	}
-	return s.Reset()
+	return s
 }
 
 func (s *TxNorm) ExecRtn() *TxNorm {
@@ -89,8 +88,7 @@ func (s *TxNorm) ExecRtn() *TxNorm {
 		}
 		panic(e)
 	}
-
-	return s.Reset()
+	return s
 }
 
 func (s *TxNorm) Rollback() {
