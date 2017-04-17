@@ -20,12 +20,8 @@ type (
 		Err() error
 	}
 
-	RowsHandler interface {
-		HandleRow(r RowScanner)
-	}
-
 	MultiRowsHandler interface {
-		RowsHandler
+		HandleRow(r RowScanner)
 		AddResultSet()
 	}
 )
