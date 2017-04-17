@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	DefaultTxOptions *sql.TxOptions = new(sql.TxOptions)
+	DefaultTxOptions *sql.TxOptions = NewTxOptions(sql.LevelDefault, false)
 )
 
-func CreateTxOptions(level sql.IsolationLevel, readonly bool) *sql.TxOptions {
+func NewTxOptions(level sql.IsolationLevel, readonly bool) *sql.TxOptions {
 	return &sql.TxOptions{Isolation: level, ReadOnly: readonly}
 }
 
