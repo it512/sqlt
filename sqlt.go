@@ -8,6 +8,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var (
+	DefaultTxOptions *sql.TxOptions = new(sql.TxOptions)
+)
+
+func CreateTxOptions(level sql.IsolationLevel, readonly bool) *sql.TxOptions {
+	return &sql.TxOptions{Isolation: level, ReadOnly: readonly}
+}
+
 type (
 	DbOp struct {
 		assembler SqlAssembler
