@@ -13,6 +13,10 @@ type (
 		param map[string]interface{}
 		mrh   sqlt.MultiRowsHandler
 		c     context.Context
+
+		/*
+			handlers map[string]sqlt.MultiRowsHandler
+		*/
 	}
 )
 
@@ -87,9 +91,9 @@ func (s *SyncNorm) ExecRtn() *SyncNorm {
 	return s
 }
 
-func (s *SyncNorm) Finish() Collator {
+func (s *SyncNorm) Finish() *Collator {
 	s.c = nil
-	return Collator{}
+	return &Collator{}
 }
 
 func (s *SyncNorm) Cancel() {

@@ -11,18 +11,15 @@ import (
 type (
 	CollateFunc func() error
 
-	Collator struct{}
+	Collator struct {
+	}
 )
 
-func (c Collator) CollateWithFunc(cf CollateFunc) {
+func (c *Collator) Collate(cf CollateFunc) error {
 	if cf != nil {
-		if e := cf(); e != nil {
-			panic(e)
-		}
+		return cf()
 	}
-}
-
-func (c Collator) Collate() {
+	return nil
 }
 
 type (
