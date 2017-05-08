@@ -109,7 +109,7 @@ func (s *TxNorm) Rollback() {
 	s.c = nil
 }
 
-func (s *TxNorm) Commit() Collator {
+func (s *TxNorm) Commit() *Collator {
 	e := s.op.Commit()
 	if e != nil {
 		if s.autoRollback {
@@ -118,5 +118,5 @@ func (s *TxNorm) Commit() Collator {
 		panic(e)
 	}
 	s.c = nil
-	return Collator{}
+	return &Collator{}
 }
