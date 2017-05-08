@@ -22,6 +22,9 @@ func (c Collator) CollateWithFunc(cf CollateFunc) {
 	}
 }
 
+func (c Collator) Collate() {
+}
+
 type (
 	Norm struct {
 		dbop *sqlt.DbOp
