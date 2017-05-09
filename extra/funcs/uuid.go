@@ -1,4 +1,4 @@
-package uuid
+package funcs
 
 import (
 	"crypto/rand"
