@@ -28,12 +28,12 @@ type (
 	}
 )
 
-func (n *Norm) NewSyncNorm(c context.Context) *SyncNorm {
-	return &SyncNorm{op: n.dbop, param: make(map[string]interface{}), c: c}
+func (n *Norm) NewSimpleNorm(c context.Context) *SimpleNorm {
+	return &SimpleNorm{op: n.dbop, param: make(map[string]interface{}), c: c}
 }
 
-func (n *Norm) NewSyncNormDefault() *SyncNorm {
-	return n.NewSyncNorm(context.Background())
+func (n *Norm) NewSimpleNormDefault() *SimpleNorm {
+	return n.NewSimpleNorm(context.Background())
 }
 
 func (n *Norm) NewTxNorm(c context.Context, i interface{}, opt *sql.TxOptions) *TxNorm {
