@@ -1,4 +1,4 @@
-package handler
+package handle
 
 import (
 	"github.com/it512/sqlt"
