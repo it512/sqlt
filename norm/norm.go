@@ -9,20 +9,6 @@ import (
 )
 
 type (
-	CollateFunc func() error
-
-	Collator struct {
-	}
-)
-
-func (c *Collator) Collate(cf CollateFunc) error {
-	if cf != nil {
-		return cf()
-	}
-	return nil
-}
-
-type (
 	Norm struct {
 		dbop *sqlt.DbOp
 	}

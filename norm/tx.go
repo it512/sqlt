@@ -14,6 +14,9 @@ type (
 		c            context.Context
 		op           *sqlt.TxOp
 		autoRollback bool
+
+		lastError   error
+		isCommitted bool
 	}
 )
 
@@ -51,72 +54,65 @@ func (s *TxNorm) RemoveParam(k string) *TxNorm {
 	return s
 }
 
-func (s *TxNorm) Reset() *TxNorm {
-	s.param = make(map[string]interface{})
-	s.id = ""
-	s.mrh = nil
-	return s
-}
-
-func (s *TxNorm) reset() {
-	s.id = ""
-	s.mrh = nil
-}
-
 func (s *TxNorm) Query() *TxNorm {
-	mustCheckContext(s.c)
-	e := s.op.QueryContext(s.c, s.id, s.param, s.mrh)
-	if e != nil {
-		if s.autoRollback {
-			s.Rollback()
+	if !s.isCommitted {
+		if s.lastError == nil {
+			if s.lastError = s.op.QueryContext(s.c, s.id, s.param, s.mrh); s.lastError != nil {
+				if s.autoRollback {
+					s.Rollback()
+				}
+			}
 		}
-		panic(e)
 	}
-	s.reset()
 	return s
 }
 
 func (s *TxNorm) Exec() *TxNorm {
-	mustCheckContext(s.c)
-	_, e := s.op.ExecContext(s.c, s.id, s.param)
-	if e != nil {
-		if s.autoRollback {
-			s.Rollback()
+	if !s.isCommitted {
+		if s.lastError == nil {
+			if _, s.lastError = s.op.ExecContext(s.c, s.id, s.param); s.lastError != nil {
+				if s.autoRollback {
+					s.Rollback()
+				}
+			}
 		}
-		panic(e)
 	}
-	s.reset()
 	return s
 }
 
 func (s *TxNorm) ExecRtn() *TxNorm {
-	mustCheckContext(s.c)
-	e := s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
-	if e != nil {
-		if s.autoRollback {
-			s.Rollback()
+	if !s.isCommitted {
+		if s.lastError == nil {
+			if s.lastError = s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh); s.lastError != nil {
+				if s.autoRollback {
+					s.Rollback()
+				}
+			}
 		}
-		panic(e)
 	}
-	s.reset()
 	return s
 }
 
-func (s *TxNorm) Rollback() {
-	if err := s.op.Rollback(); err != nil {
-		panic(err)
+func (s *TxNorm) Rollback() error {
+	if !s.isCommitted {
+		s.lastError = s.op.Rollback()
+		s.isCommitted = true
+	} else {
+		panic("TxNorm is already committed!")
 	}
-	s.c = nil
+	return s.lastError
 }
 
-func (s *TxNorm) Commit() *Collator {
-	e := s.op.Commit()
-	if e != nil {
-		if s.autoRollback {
-			s.Rollback()
+func (s *TxNorm) Commit() error {
+	if !s.isCommitted {
+		s.c = nil
+		if s.lastError = s.op.Commit(); s.lastError != nil {
+			if s.autoRollback {
+				s.Rollback()
+			}
 		}
-		panic(e)
+	} else {
+		panic("TxNorm is already committed!")
 	}
-	s.c = nil
-	return &Collator{}
+	return s.lastError
 }

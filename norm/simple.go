@@ -7,11 +7,6 @@ import (
 )
 
 type (
-	Result struct {
-	}
-)
-
-type (
 	SimpleNorm struct {
 		op    *sqlt.DbOp
 		id    string
@@ -62,22 +57,16 @@ func (s *SimpleNorm) RemoveParam(k string) *SimpleNorm {
 	return s
 }
 
-func (s *SimpleNorm) Query() {
+func (s *SimpleNorm) Query() (sqlt.MultiRowsHandler, error) {
 	s.lastError = s.op.QueryContext(s.c, s.id, s.param, s.mrh)
+	return s.mrh, s.lastError
 }
 
-func (s *SimpleNorm) Exec() {
-	_, s.lastError = s.op.ExecContext(s.c, s.id, s.param)
+func (s *SimpleNorm) Exec() (int64, error) {
+	return s.op.ExecContext(s.c, s.id, s.param)
 }
 
-func (s *SimpleNorm) ExecRtn() {
+func (s *SimpleNorm) ExecRtn() (sqlt.MultiRowsHandler, error) {
 	s.lastError = s.op.ExecRtnContext(s.c, s.id, s.param, s.mrh)
-}
-
-func (s *SimpleNorm) Error() error {
-	return s.lastError
-}
-
-func (s *SimpleNorm) IsError() bool {
-	return s.lastError != nil
+	return s.mrh, s.lastError
 }
