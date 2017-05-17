@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/it512/dsds/simple"
 	_ "github.com/it512/slf4go/simplelog"
 	"github.com/it512/sqlt"
 	"github.com/it512/sqlt/funcs"
@@ -13,7 +12,7 @@ import (
 )
 
 func main() {
-	dbop := sqlt.NewSqlt(simple.NewSimpleDbSet("postgres", "dbname=test sslmode=disable"), sqlt.NewStdSqlAssemblerDefault("template/*.tpl"))
+	dbop := sqlt.NewSqltDefault("postgres", "dbname=test sslmode=disable", "template/*.tpl")
 	smr := sqlt.NewSliceMapRowsHandler(funcs.Camal)
 
 	param := make(map[string]interface{})

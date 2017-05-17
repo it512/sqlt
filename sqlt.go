@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/it512/dsds"
+	"github.com/it512/dsds/simple"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -126,4 +127,8 @@ func (c *TxOp) Rollback() error {
 
 func NewSqlt(dbset dsds.DbManager, loader SqlAssembler) *DbOp {
 	return &DbOp{manager: dbset, assembler: loader}
+}
+
+func NewSqltDefault(dbname, datasource, pattern string) *DbOp {
+	return NewSqlt(simple.NewSimpleDbSet(dbname, datasource), NewStdSqlAssemblerDefault(pattern))
 }
