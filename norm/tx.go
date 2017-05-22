@@ -2,6 +2,7 @@ package norm
 
 import (
 	"context"
+	"errors"
 
 	"github.com/it512/sqlt"
 )
@@ -94,25 +95,18 @@ func (s *TxNorm) ExecRtn() *TxNorm {
 }
 
 func (s *TxNorm) Rollback() error {
-	if !s.isCommitted {
-		s.lastError = s.op.Rollback()
-		s.isCommitted = true
-	} else {
-		panic("TxNorm is already committed!")
-	}
-	return s.lastError
+	s.isCommitted = true
+	return s.op.Rollback()
 }
 
-func (s *TxNorm) Commit() error {
-	if !s.isCommitted {
-		s.c = nil
-		if s.lastError = s.op.Commit(); s.lastError != nil {
-			if s.autoRollback {
-				s.Rollback()
-			}
-		}
-	} else {
-		panic("TxNorm is already committed!")
+func (s *TxNorm) Commit() error {	
+	if s.lastError != nil {
+		return s.lastError
 	}
-	return s.lastError
+	if s.isCommitted {
+		return errors.New("TxNorm is already committed!")
+	}	
+	s.c = nil
+	s.isCommitted = true
+	return s.op.Commit()
 }
