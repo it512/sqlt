@@ -1,2 +1,1 @@
-# sqlt
-like mybatis see README-zh.md
+# sqlt is moved to TwigLab! URL : https://github.com/twiglab/xsql
